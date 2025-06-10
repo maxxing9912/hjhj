@@ -1,0 +1,38 @@
+{
+    "name": "clarivex-next",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "aos": "^2.3.4",
+        "body-parser": "^2.2.0",
+        "discord.js": "^14.19.3",
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "express-session": "^1.18.1",
+        "jsonwebtoken": "^9.0.2",
+        "next": "^13.4.10",
+        "next-auth": "^4.24.11",
+        "node-fetch": "^3.3.2",
+        "passport": "^0.7.0",
+        "passport-discord": "^0.1.4",
+        "quick.db": "^9.1.7",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "stripe": "^18.2.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/postcss": "^4",
+        "@types/node": "^20",
+        "@types/react": "^18",
+        "@types/react-dom": "^18",
+        "tailwindcss": "^4",
+        "typescript": "^5"
+    },
+    "license": "ISC"
+}

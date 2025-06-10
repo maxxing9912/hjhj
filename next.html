@@ -1,0 +1,13 @@
+fetch('/api/activate_premium', {
+    method: 'POST',
+    credentials: 'include'  // mantiene la sessione passport
+  })
+  .then(r => r.json())
+  .then(j => {
+    if (j.success) {
+      // mostra conferma all’utente
+      alert('Premium activated on Discord!');
+    } else {
+      alert('Errore attivazione premium: ' + j.message);
+    }
+  }); 
