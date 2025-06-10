@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clarivex – Discord Bot</title>
+
+  <!-- Tailwind & AOS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+  <style>
+    /* THEME */
+    body.light { background: #f9fafb; color: #1e293b; }
+    body.dark  { background: #0f172a; color: #f1f5f9; }
+
+    /* LOADER */
+    #loader {
+      position: fixed; inset:0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: linear-gradient(135deg,#0f172a,#1e293b);
+      color: #38bdf8; z-index: 9999; transition: opacity .5s;
+    }
+    body.light #loader {
+      background: linear-gradient(135deg,#f1f5f9,#e2e8f0);
+      color: #4f46e5;
+    }
+    .spinner {
+      width: 100px; height: 100px;
+      border: 8px solid rgba(56,189,248,.2);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #progress { margin-top: .5rem; font: 1.2rem monospace; }
+
+    /* HEADER */
+    header {
+      position: sticky; top: 0; backdrop-filter: blur(8px);
+      padding: 1.5rem 0; transition: all .4s ease;
+    }
+    header.shrink { padding: .75rem 0; }
+    body.light header { background: rgba(255,255,255,.8); }
+    body.dark  header { background: rgba(31,41,55,.8); }
+
+    /* NAV LINKS */
+    .nav-link {
+      margin-left: 1.5rem; position: relative; padding-bottom: .25rem;
+      cursor: pointer; transition: color .3s;
+    }
+    .nav-link::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 2px; background: currentColor;
+      transition: width .3s;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after { width: 100%; }
+
+    /* DISCORD LOGIN BAR */
+    #discordBar {
+      background: #111827;
+      color: #a5b4fc;
+    }
+    #discordUserInfo {
+      display: none;
+      align-items: center;
+      gap: .5rem;
+    }
+    #discordUserInfo img {
+      width: 32px; height: 32px; border-radius: 50%;
+    }
+    #discordUserInfo span {
+      color: #38bdf8; font-weight: 500;
+    }
+    #discordLoginBtn {
+      background-color: #7289da;
+      color: white; font-weight: bold;
+      padding: .5rem 1rem; border-radius: .375rem;
+      text-decoration: none; transition: background-color .3s;
+      display: none;
+    }
+    #discordLoginBtn:hover {
+      background-color: #5b6eae;
+    }
+
+    /* COOKIE BANNER */
+    #cookieBanner {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(31,41,55,.95); color: #f9fafb;
+      padding: .75rem 1rem; display: flex; justify-content: space-between;
+      align-items: center; transform: translateY(100%);
+      transition: transform .5s; z-index: 10000;
+    }
+    #cookieBanner.show { transform: translateY(0); }
+    #cookieBanner button {
+      background: #8b5cf6; color: white; border: none;
+      padding: .5rem 1rem; border-radius: .5rem;
+      cursor: pointer; transition: background .3s;
+    }
+    #cookieBanner button:hover {
+      background: #7c3aed;
+    }
+
+    /* HERO */
+    .animated-gradient {
+      background: linear-gradient(-45deg,#4f46e5,#3b82f6,#06b6d4,#8b5cf6);
+      background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+    }
+    @keyframes gradientBG {
+      0%   { background-position: 0 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0 50%; }
+    }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translate(0,0); }
+      50%     { transform: translate(var(--dx),var(--dy)); }
+    }
+
+    .typewriter .wrap {
+      border-right: .15em solid currentColor;
+      animation: caret .7s steps(1) infinite;
+    }
+    @keyframes caret { 50% { border-color: transparent; } }
+
+    /* CTA */
+    .cta-btn {
+      position: relative; overflow: hidden;
+      animation: pulseScale 4s ease-in-out infinite;
+    }
+    .cta-btn::after {
+      content: ""; position: absolute; top: 50%; left: 50%;
+      width: 0; height: 0; background: rgba(255,255,255,.2);
+      border-radius: 50%; transform: translate(-50%,-50%);
+      transition: width .5s, height .5s;
+    }
+    .cta-btn:hover::after {
+      width: 200%; height: 200%;
+    }
+    @keyframes pulseScale {
+      0%,100% { transform: scale(1); }
+      50%     { transform: scale(1.05); }
+    }
+
+    /* FEATURES */
+    .feature-card {
+      perspective: 1000px; transform-style: preserve-3d;
+      background: rgba(55,65,81,.6); backdrop-filter: blur(12px);
+      padding: 2rem; border-radius: 1.25rem;
+      transition: transform .4s, box-shadow .4s;
+      cursor: pointer;
+    }
+    .feature-card:hover {
+      transform: rotateX(6deg) rotateY(6deg) translateY(-10px) scale(1.03);
+      box-shadow: 0 20px 25px rgba(0,0,0,.3);
+    }
+    .feature-card h3 { transition: color .3s; }
+    .feature-card:hover h3 { color: #a78bfa; }
+
+    /* MODAL */
+    #modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    #modal.show { opacity: 1; pointer-events: auto; }
+    #modal .content {
+      background: inherit; backdrop-filter: blur(15px);
+      padding: 2rem; border-radius: 1rem; color: inherit;
+      max-width: 28rem; width: 90%; position: relative;
+    }
+    #modalClose {
+      position: absolute; top: .5rem; right: .75rem;
+      background: none; border: none; color: inherit; font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* CONFETTI */
+    #confettiCanvas {
+      position: fixed; inset: 0; pointer-events: none;
+      opacity: 0; transition: opacity .5s;
+    }
+
+    /* BACK TO TOP */
+    #backToTop {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: #8b5cf6; color: white; border: none;
+      padding: .75rem; border-radius: 9999px;
+      cursor: pointer; opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    #backToTop.show { opacity: 1; pointer-events: auto; }
+  </style>
+</head>
+<body class="dark">
+
+  <!-- DISCORD LOGIN/USER INFO BAR -->
+  <div
+    id="discordBar"
+    class="fixed top-0 left-0 right-0 bg-gray-900 text-indigo-400 p-2 flex justify-end items-center z-50"
+  >
+    <!-- Will show avatar + username#discriminator when logged in -->
+    <span id="discordUserInfo">
+      <img id="discordAvatar" src="" alt="Avatar" />
+      <span id="discordUsernameTag"></span>
+    </span>
+    <!-- Shown when NOT logged in -->
+    <a id="discordLoginBtn" href="/auth/discord">Login with Discord</a>
+  </div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <div id="progress">0%</div>
+  </div>
+
+  <!-- COOKIE BANNER -->
+  <div id="cookieBanner">
+    <span>Usiamo cookie per migliorare la tua esperienza. Navigando accetti la nostra cookie policy.</span>
+    <button id="acceptCookies">Accetta</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content" class="opacity-0 transition-opacity duration-500 mt-12">
+
+    <!-- HEADER -->
+    <header id="header">
+      <div class="container mx-auto flex items-center justify-between px-6 max-w-6xl">
+        <h1 class="text-3xl font-extrabold select-none">Clarivex</h1>
+        <nav class="hidden md:flex">
+          <a class="nav-link active" data-target="hero">Home</a>
+          <a class="nav-link" href="pricing.html">Pricing</a>
+          <a class="nav-link" href="tos.html">Terms</a>
+          <a class="nav-link" href="privacy.html">Privacy</a>
+          <a class="nav-link" href="support.html">Support</a>
+        </nav>
+        <div class="flex items-center gap-4">
+          <button id="darkModeToggle" class="p-2 rounded-full">🌓</button>
+          <button id="hamburger" class="md:hidden flex flex-col gap-1">
+            <span class="block w-6 h-1 bg-indigo-400"></span>
+            <span class="block w-6 h-1 bg-indigo-400"></span>
+            <span class="block w-6 h-1 bg-indigo-400"></span>
+          </button>
+        </div>
+      </div>
+      <nav id="mobileNav" class="hidden flex-col bg-gray-800 text-indigo-400 p-6 space-y-4">
+        <a class="nav-link" data-target="hero">Home</a>
+        <a class="nav-link" href="pricing.html">Pricing</a>
+        <a href="tos.html" class="nav-link">Terms</a>
+        <a href="privacy.html" class="nav-link">Privacy</a>
+        <a href="support.html" class="nav-link">Support</a>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <section id="hero" class="animated-gradient relative text-center py-32 overflow-hidden">
+      <div class="particle w-8 h-8" style="--dx:20px;--dy:-30px;left:15%;top:25%;"></div>
+      <div class="particle w-6 h-6" style="--dx:-15px;--dy:25px;left:75%;top:35%;animation-delay:2s;"></div>
+      <div class="particle w-10 h-10" style="--dx:30px;--dy:40px;left:50%;top:15%;animation-delay:4s;"></div>
+
+      <div class="relative z-10 max-w-3xl mx-auto px-6">
+        <h2 class="typewriter text-5xl sm:text-6xl font-extrabold mb-6"><span class="wrap"></span></h2>
+        <p class="text-xl sm:text-2xl text-indigo-300 mb-12">
+          The ultimate Discord bot for server management, advanced tools & premium features.
+        </p>
+        <a
+          id="joinBtn"
+          href="https://discord.gg/tuo-server"
+          target="_blank"
+          class="cta-btn bg-white dark:bg-gray-900 dark:text-white text-gray-900 font-bold py-3 px-6 rounded-full shadow-lg inline-block relative"
+        >
+          Join Discord
+        </a>
+        <div
+          id="joinTooltip"
+          class="absolute hidden bg-indigo-600 text-white text-sm py-1 px-3 rounded -mt-12 left-1/2 transform -translate-x-1/2"
+        >
+          Users online: <span id="onlineCount">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="bg-gray-800 py-20">
+      <div class="container mx-auto grid md:grid-cols-3 gap-10 px-6 max-w-6xl">
+        <div class="feature-card" data-feature="Advanced Moderation" data-aos="fade-up">
+          <h3 class="text-2xl font-semibold mb-4">Advanced Moderation</h3>
+          <p>Smart commands, auto-moderation & full logs.</p>
+          <button class="learn-btn">Learn More</button>
+        </div>
+        <div class="feature-card" data-feature="XP & Levels" data-aos="fade-up" data-aos-delay="100">
+          <h3 class="text-2xl font-semibold mb-4">XP & Levels</h3>
+          <p>Engage your community with XP, ranks & leaderboards.</p>
+          <button class="learn-btn">Learn More</button>
+        </div>
+        <div class="feature-card" data-feature="Premium Unlocks" data-aos="fade-up" data-aos-delay="200">
+          <h3 class="text-2xl font-semibold mb-4">Premium Unlocks</h3>
+          <p>Exclusive tools via redeemable keys.</p>
+          <button class="learn-btn">Learn More</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL -->
+    <div id="modal" aria-hidden="true">
+      <div class="content">
+        <button id="modalClose">×</button>
+        <h3 id="modalTitle" class="text-2xl font-bold mb-4"></h3>
+        <p id="modalBody"></p>
+      </div>
+    </div>
+
+    <!-- CTA + CONFETTI -->
+    <section class="text-center py-16 px-6">
+      <a
+        id="ctaBtn"
+        href="https://discord.gg/tuo-server"
+        target="_blank"
+        class="cta-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg"
+      >
+        Get Started Now
+      </a>
+    </section>
+
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-indigo-400 py-6 border-t border-gray-700 text-center">
+      <a href="tos.html" class="hover:text-indigo-300">Terms of Service</a> |
+      <a href="privacy.html" class="hover:text-indigo-300">Privacy Policy</a> |
+      <a href="support.html" class="hover:text-indigo-300">Support</a>
+      <p class="mt-4">&copy; 2025 Clarivex. All rights reserved.</p>
+    </footer>
+
+    <!-- BACK TO TOP -->
+    <button id="backToTop" title="Back to top">↑</button>
+  </div>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({ once: true, duration: 800, easing: 'ease-in-out' });
+
+    /* DISCORD LOGIN CHECK */
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/me')
+        .then(res => {
+          if (!res.ok) throw new Error('Not logged in');
+          return res.json();
+        })
+        .then(user => {
+          // If logged in, show avatar + tag, hide login button
+          const avatarElm         = document.getElementById('discordAvatar');
+          const usernameTagElm    = document.getElementById('discordUsernameTag');
+          const userInfoContainer = document.getElementById('discordUserInfo');
+          const loginBtn          = document.getElementById('discordLoginBtn');
+
+          // Construct Discord avatar URL (handle animated vs. static)
+          let avatarUrl;
+          if (user.avatar) {
+            // If avatar hash starts with "a_", use .gif; otherwise .png
+            const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
+            avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=64`;
+          } else {
+            // Default avatar (when user.avatar is null)
+            avatarUrl = `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discriminator) % 5}.png`;
+          }
+
+          avatarElm.src             = avatarUrl;
+          usernameTagElm.textContent = `${user.username}#${user.discriminator}`;
+          userInfoContainer.style.display = 'flex';
+
+          // Show Logout button
+          loginBtn.textContent = 'Logout';
+          loginBtn.href        = '/logout';
+          loginBtn.style.display = 'inline-block';
+        })
+        .catch(() => {
+          // If not logged in, show only Login button
+          document.getElementById('discordUserInfo').style.display = 'none';
+          const loginBtn = document.getElementById('discordLoginBtn');
+          loginBtn.textContent = 'Login with Discord';
+          loginBtn.href = '/auth/discord';
+          loginBtn.style.display = 'inline-block';
+        });
+    });
+
+    /* LOADER */
+    let pct  = 0;
+    let prog = document.getElementById('progress');
+    let li   = setInterval(() => {
+      pct += 5;
+      prog.textContent = pct + '%';
+      if (pct >= 100) {
+        clearInterval(li);
+        document.getElementById('loader').style.opacity = 0;
+        setTimeout(() => {
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('content').style.opacity = 1;
+        }, 500);
+      }
+    }, 50);
+
+    /* COOKIE BANNER */
+    const cb = document.getElementById('cookieBanner'),
+          ac = document.getElementById('acceptCookies');
+    if (!localStorage.getItem('cookiesAccepted')) {
+      setTimeout(() => cb.classList.add('show'), 800);
+    }
+    ac.onclick = () => {
+      localStorage.setItem('cookiesAccepted', 'yes');
+      cb.classList.remove('show');
+    };
+
+    /* THEME TOGGLE */
+    const dm = document.getElementById('darkModeToggle');
+    dm.onclick = () => {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    };
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+      document.body.classList.remove('dark');
+    }
+
+    /* HEADER SHRINK & BACK TO TOP */
+    const hdr    = document.getElementById('header'),
+          topBtn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      window.scrollY > 30  ? hdr.classList.add('shrink')  : hdr.classList.remove('shrink');
+      window.scrollY > 300 ? topBtn.classList.add('show') : topBtn.classList.remove('show');
+    });
+    topBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    /* MOBILE NAV */
+    const ham = document.getElementById('hamburger'),
+          mob = document.getElementById('mobileNav');
+    ham.onclick = () => {
+      mob.classList.toggle('hidden');
+      ham.classList.toggle('open');
+    };
+
+    /* TYPEWRITER */
+    (function() {
+      const words = ["Advanced Moderation.","XP & Leveling.","Premium Unlocks.","Powerful & Easy."],
+            wrap  = document.querySelector('.wrap');
+      let wi = 0, ci = 0, del = false;
+      (function t() {
+        let full = words[wi];
+        if (!del) {
+          wrap.textContent = full.substr(0, ++ci);
+          if (ci === full.length) { del = true; return setTimeout(t, 1500); }
+        } else {
+          wrap.textContent = full.substr(0, --ci);
+          if (ci === 0) { del = false; wi = (wi + 1) % words.length; }
+        }
+        setTimeout(t, del ? 50 : 120);
+      })();
+    })();
+
+    /* TOOLTIP */
+    const jb = document.getElementById('joinBtn'),
+          tt = document.getElementById('joinTooltip'),
+          oc = document.getElementById('onlineCount');
+    oc.textContent = Math.floor(Math.random() * 200) + 50;
+    jb.onmouseenter = () => {
+      tt.classList.remove('hidden');
+      tt.style.opacity = 1;
+    };
+    jb.onmouseleave = () => {
+      tt.style.opacity = 0;
+      setTimeout(() => tt.classList.add('hidden'), 300);
+    };
+
+    /* MODAL */
+    const details = {
+      "Advanced Moderation": "Smart commands, filters & logs.",
+      "XP & Levels":        "Experience, ranks & leaderboards.",
+      "Premium Unlocks":    "Redeem keys for exclusive commands."
+    },
+    lb    = document.querySelectorAll('.learn-btn'),
+    modal = document.getElementById('modal'),
+    mT    = document.getElementById('modalTitle'),
+    mB    = document.getElementById('modalBody'),
+    mC    = document.getElementById('modalClose');
+    lb.forEach(b => b.onclick = e => {
+      let f = e.target.closest('.feature-card').dataset.feature;
+      mT.textContent = f;
+      mB.textContent = details[f];
+      modal.classList.add('show');
+    });
+    mC.onclick = () => modal.classList.remove('show');
+    modal.onclick = e => { if (e.target === modal) modal.classList.remove('show'); };
+
+    /* CONFETTI */
+    const cvs = document.getElementById('confettiCanvas'),
+          ctx = cvs.getContext('2d');
+    function resize() {
+      cvs.width  = innerWidth;
+      cvs.height = innerHeight;
+    }
+    window.onresize = resize;
+    resize();
+    class P {
+      constructor() {
+        this.x    = Math.random() * cvs.width;
+        this.y    = Math.random() * -cvs.height;
+        this.r    = Math.random() * 5 + 3;
+        this.sp   = Math.random() * 3 + 2;
+        this.c    = `hsl(${Math.random() * 360},70%,60%)`;
+        this.tilt = Math.random() * 10 - 10;
+        this.ts   = Math.random() * .1 + .05;
+      }
+      upd() {
+        this.y += this.sp;
+        this.x += Math.sin(this.y / 10);
+        this.tilt += this.ts;
+        if (this.y > cvs.height) {
+          this.y = -10;
+          this.x = Math.random() * cvs.width;
+        }
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.lineWidth = this.r / 2;
+        ctx.strokeStyle = this.c;
+        ctx.moveTo(this.x + this.tilt + this.r / 2, this.y);
+        ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.r / 2);
+        ctx.stroke();
+      }
+    }
+    let parts = [];
+    function startConf() {
+      parts = [];
+      for (let i = 0; i < 150; i++) parts.push(new P());
+      cvs.style.opacity = 1;
+      requestAnimationFrame(upd);
+      setTimeout(() => { cvs.style.opacity = 0; }, 3000);
+    }
+    function upd() {
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      parts.forEach(p => { p.upd(); p.draw(); });
+      if (cvs.style.opacity == "1") requestAnimationFrame(upd);
+    }
+    document.getElementById('ctaBtn').onclick = startConf;
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Success</title>
+  <!-- fallback redirect dopo 1s -->
+  <meta http-equiv="refresh" content="1; url=/pricing.html" />
+</head>
+<body>
+  <script>
+    // Imposta il piano Premium e rimanda subito
+    localStorage.setItem("clarivexPlan", "premium");
+    window.location.replace("/pricing.html");
+  </script>
+  <p>Payment successful! Redirecting to your Premium plan…</p>
+</body>
+</html>

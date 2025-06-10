@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clarivex – Pricing</title>
+
+  <!-- Tailwind & AOS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <style>
+    /* Stili identici ai tuoi precedenti */
+    body.light { background: #f9fafb; color: #1e293b; }
+    body.dark  { background: #0f172a; color: #f1f5f9; }
+    header { position: sticky; top: 0; backdrop-filter: blur(8px); padding: 1.5rem 0; transition: all .4s; z-index: 10; }
+    header.shrink { padding: .75rem 0; }
+    .nav-link { margin-left:1.5rem; position:relative; padding-bottom:.25rem; cursor:pointer; }
+    .nav-link::after { content:""; position:absolute; left:0; bottom:0; width:0; height:2px; background:currentColor; transition:width .3s; }
+    .nav-link:hover::after, .nav-link.active::after { width:100%; }
+    .typewriter .wrap { display:inline-block; border-right:.15em solid currentColor; animation:caret .7s steps(1) infinite; }
+    @keyframes caret {50%{border-color:transparent}}
+    .plan-card { position:relative; background:rgba(55,65,81,.6); backdrop-filter:blur(12px); padding:2rem; border-radius:1.25rem; text-align:center; transition:transform .4s,box-shadow .4s,border-color .4s; cursor:pointer; border:2px solid transparent; }
+    .plan-card.current { border-color:#3b82f6; }
+    .plan-card:hover { transform:translateY(-8px) scale(1.03); box-shadow:0 20px 30px rgba(0,0,0,.3); }
+    .plan-card .btn { transition:transform .3s; }
+    .plan-card .btn:hover { transform:scale(1.05); }
+    .badge { position:absolute; top:1rem; right:1rem; background:#3b82f6; color:white; padding:.25rem .75rem; border-radius:.75rem; font-size:.75rem; font-weight:600; }
+    footer { background:#111827; color:#a5b4fc; padding:1rem 0; text-align:center; border-top:1px solid #374151; }
+    footer a { margin:0 .5rem; transition:color .3s; }
+    footer a:hover { color:#c4b5fd; }
+  </style>
+</head>
+<body class="dark">
+
+  <!-- HEADER -->
+  <header id="header">
+    <div class="container mx-auto flex items-center justify-between px-6 max-w-6xl">
+      <h1 class="text-3xl font-extrabold select-none">Clarivex</h1>
+      <nav class="hidden md:flex">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link active" href="pricing.html">Pricing</a>
+        <a class="nav-link" href="tos.html">Terms</a>
+        <a class="nav-link" href="privacy.html">Privacy</a>
+        <a class="nav-link" href="support.html">Support</a>
+      </nav>
+      <button id="hamburger" class="md:hidden flex flex-col gap-1">
+        <span class="block w-6 h-1 bg-indigo-400"></span>
+        <span class="block w-6 h-1 bg-indigo-400"></span>
+        <span class="block w-6 h-1 bg-indigo-400"></span>
+      </button>
+    </div>
+    <nav id="mobileNav" class="hidden flex-col bg-gray-800 text-indigo-400 p-6 space-y-4">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="pricing.html">Pricing</a>
+      <a class="nav-link" href="tos.html">Terms</a>
+      <a class="nav-link" href="privacy.html">Privacy</a>
+      <a class="nav-link" href="support.html">Support</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="text-center py-20">
+    <h2 class="text-4xl sm:text-5xl font-extrabold mb-4">
+      <span class="typewriter"><span class="wrap"></span></span>
+    </h2>
+    <p class="text-indigo-300 mb-12">Choose your plan and unlock all Clarivex features.</p>
+  </section>
+
+  <!-- PLANS -->
+  <main class="container mx-auto px-6 max-w-4xl grid md:grid-cols-2 gap-8 mb-20">
+    <div id="freePlan" class="plan-card">
+      <h3 class="text-2xl font-semibold mb-2">Free</h3>
+      <p class="text-xl mb-4">Forever Free</p>
+      <ul class="mb-6 space-y-2 text-left list-disc list-inside">
+        <li>Basic Moderation</li>
+        <li>Limited XP & Levels</li>
+        <li>Community Support</li>
+      </ul>
+      <button id="freeBtn" class="btn cta-btn bg-white text-gray-900 font-bold py-2 px-6 rounded-full shadow-lg">
+        Select Free
+      </button>
+    </div>
+
+    <div id="premiumPlan" class="plan-card">
+      <h3 class="text-2xl font-semibold mb-2">Premium</h3>
+      <p class="text-3xl font-bold mb-1">€3.99</p>
+      <p class="text-base mb-4">One-time payment • Lifetime Access</p>
+      <ul class="mb-6 space-y-2 text-left list-disc list-inside">
+        <li>Advanced Moderation</li>
+        <li>Full XP & Levels</li>
+        <li>Premium Unlocks</li>
+        <li>Priority Support</li>
+      </ul>
+      <button id="buyBtn" class="btn cta-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full shadow-lg">
+        Buy Premium
+      </button>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="tos.html">Terms of Service</a> |
+    <a href="privacy.html">Privacy Policy</a> |
+    <a href="support.html">Support</a>
+    <p class="mt-4">&copy; 2025 Clarivex. All rights reserved.</p>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({ once: true, duration: 800, easing: 'ease-in-out' });
+
+    // Typewriter
+    (function(){
+      const words = ["Free & Premium Plans.","One-time Premium €3.99.","Lifetime Access to Clarivex."];
+      const wrap = document.querySelector('.typewriter .wrap');
+      let wi=0,ci=0,del=false;
+      (function t(){
+        const full=words[wi];
+        if(!del){
+          wrap.textContent = full.substr(0,++ci);
+          if(ci===full.length){del=true;return setTimeout(t,1500);}
+        } else {
+          wrap.textContent = full.substr(0,--ci);
+          if(ci===0){del=false; wi=(wi+1)%words.length;}
+        }
+        setTimeout(t,del?50:120);
+      })();
+    })();
+
+    // --------------------------------------------------
+    // Recupero utente Discord loggato (via /api/me)
+    // --------------------------------------------------
+    let discordUser = null;
+
+    async function fetchDiscordUser() {
+      try {
+        const res = await fetch('/api/me');
+        if (!res.ok) throw new Error('Not logged in');
+        discordUser = await res.json();
+      } catch (err) {
+        discordUser = null;
+        console.warn('Nessun utente Discord loggato:', err);
+      }
+    }
+
+    // --------------------------------------------------
+    // Funzione per creare la Checkout Session con Discord ID
+    // --------------------------------------------------
+    async function createCheckoutSession() {
+      const buyBtn = document.getElementById('buyBtn');
+      if (!discordUser || !discordUser.id) {
+        alert('Per favore, effettua prima il login con Discord.');
+        return;
+      }
+
+      buyBtn.disabled = true;
+      buyBtn.textContent = 'Redirecting…';
+
+      try {
+        const res = await fetch('/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ discordId: discordUser.id })
+        });
+        if (!res.ok) throw new Error('Impossibile contattare il server');
+
+        const { sessionId } = await res.json();
+        const stripe = Stripe('pk_test_51RTquJGjdxMu1OKbOXLmErQAVDy7416CN8lraiP2YsPNH4ufZUFgNiuuQkNRNtnqyyc8hXG02rYYnNVJEm5uH1Re00pOIg6RO2');
+        const { error } = await stripe.redirectToCheckout({ sessionId });
+        if (error) throw error;
+
+      } catch(err) {
+        alert(err.message || 'Qualcosa è andato storto.');
+        buyBtn.disabled = false;
+        buyBtn.textContent = 'Buy Premium';
+      }
+    }
+
+    // --------------------------------------------------
+    // UI logic basata su localStorage
+    // --------------------------------------------------
+    function updateUI() {
+      const plan = localStorage.getItem("clarivexPlan");
+      const free = document.getElementById('freePlan');
+      const premium = document.getElementById('premiumPlan');
+      const freeBtn = document.getElementById('freeBtn');
+      const buyBtn = document.getElementById('buyBtn');
+
+      // reset
+      [free,premium].forEach(el=>el.classList.remove('current'));
+      document.querySelectorAll('.badge').forEach(b=>b.remove());
+
+      if (plan === "premium") {
+        premium.classList.add('current');
+        const badge = document.createElement('div');
+        badge.className = 'badge'; badge.textContent = 'Current Plan';
+        premium.appendChild(badge);
+
+        buyBtn.textContent="You're on Premium"; buyBtn.disabled = true;
+        freeBtn.textContent="Free"; freeBtn.disabled = true;
+
+      } else {
+        free.classList.add('current');
+        const badge = document.createElement('div');
+        badge.className = 'badge'; badge.textContent = 'Current Plan';
+        free.appendChild(badge);
+
+        freeBtn.textContent="You're on Free"; freeBtn.disabled = true;
+        buyBtn.textContent="Buy Premium"; buyBtn.disabled = false;
+      }
+    }
+
+    // --------------------------------------------------
+    // Inizializzazione al caricamento pagina
+    // --------------------------------------------------
+    window.addEventListener('DOMContentLoaded', async () => {
+      await fetchDiscordUser();
+      updateUI();
+      document.getElementById('buyBtn').addEventListener('click', createCheckoutSession);
+
+      document.getElementById('hamburger').onclick = () =>
+        document.getElementById('mobileNav').classList.toggle('hidden');
+      window.addEventListener('scroll', () =>
+        document.getElementById('header').classList.toggle('shrink', window.scrollY>30));
+    });
+  </script>
+</body>
+</html>
